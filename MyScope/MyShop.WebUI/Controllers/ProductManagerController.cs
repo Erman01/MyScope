@@ -1,4 +1,5 @@
 ﻿using MyScope.Core.Models;
+using MyScope.Core.ViewModels;
 using MyShop.DataAccess.InMemory;
 using System;
 using System.Collections.Generic;
@@ -11,9 +12,11 @@ namespace MyShop.WebUI.Controllers
     public class ProductManagerController : Controller
     {
         ProductRepository productRepository;
+        ProductCategoryRepository productCategoryRepository;
         public ProductManagerController()
         {
             productRepository = new ProductRepository();
+            productCategoryRepository = new ProductCategoryRepository();
         }
         // GET: ProductManager
         public ActionResult Index()
@@ -23,8 +26,13 @@ namespace MyShop.WebUI.Controllers
         }
         public ActionResult Create()
         {
-            Product product = new Product();
-            return View(product);
+
+            ProductManagerViewModel viewModel = new ProductManagerViewModel();
+
+            viewModel.Product = new Product();
+            viewModel.ProductCategories = productCategoryRepository.Collection();
+
+            return View(viewModel);
         }
         [HttpPost]
         public ActionResult Create(Product product)
@@ -40,7 +48,6 @@ namespace MyShop.WebUI.Controllers
 
                 return RedirectToAction("Index");
             }
-          
         }
         public ActionResult Edit(string id)
         {
@@ -51,7 +58,12 @@ namespace MyShop.WebUI.Controllers
             }
             else
             {
-                return View(product);
+                ProductManagerViewModel viewModel = new ProductManagerViewModel();
+
+                viewModel.Product = product;
+                viewModel.ProductCategories = productCategoryRepository.Collection();
+
+                return View(viewModel);
             }
           
         }
@@ -69,17 +81,13 @@ namespace MyShop.WebUI.Controllers
                 {
                     return View(product);
                 }
-                else
-                {
+                    productToEdit.Name = product.Name;
+                    productToEdit.Category = product.Category;
+                    productToEdit.Price = product.Price;
+                    productToEdit.Image = product.Image;
+                    productToEdit.Description = product.Description;
 
-                }
-                productToEdit.Name = product.Name;
-                productToEdit.Category = product.Category;
-                productToEdit.Price = product.Price;
-                productToEdit.Image = product.Image;
-                productToEdit.Description = product.Description;
-
-                productRepository.Commit();
+                    productRepository.Commit();
 
                 return RedirectToAction("Index");
             }
