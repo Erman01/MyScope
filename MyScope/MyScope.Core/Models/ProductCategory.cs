@@ -6,13 +6,9 @@ using System.Threading.Tasks;
 
 namespace MyScope.Core.Models
 {
-    public class ProductCategory
-    {
-        public string Id { get; set; }
+    public class ProductCategory:BaseEntity
+    { 
         public string Name { get; set; }
-        public ProductCategory()
-        {
-            this.Id = Guid.NewGuid().ToString();
-        }
+     
     }
 }
