@@ -53,7 +53,7 @@ namespace MyShop.WebUI.Controllers
         public ActionResult Edit(string id)
         {
             Product product = productRepository.Find(id);
-            if (product==null)
+            if (product == null)
             {
                 return HttpNotFound();
             }
@@ -66,7 +66,6 @@ namespace MyShop.WebUI.Controllers
 
                 return View(viewModel);
             }
-          
         }
         [HttpPost]
         public ActionResult Edit(Product product,string id)
@@ -88,8 +87,7 @@ namespace MyShop.WebUI.Controllers
                     productToEdit.Image = product.Image;
                     productToEdit.Description = product.Description;
 
-                    productRepository.Commit();
-
+                productRepository.Commit();
                 return RedirectToAction("Index");
             }
         }
@@ -119,7 +117,6 @@ namespace MyShop.WebUI.Controllers
                 productRepository.Delete(id);
                 productRepository.Commit();
                 return RedirectToAction("Index");
-
             }
         }
        
