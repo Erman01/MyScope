@@ -4,6 +4,7 @@ using MyShop.Core;
 using MyShop.DataAccess.InMemory;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -17,7 +18,7 @@ namespace MyShop.WebUI.Controllers
         public ProductManagerController(IRepository<Product> _productRepository, IRepository<ProductCategory> _productCategoryRepository)
         {
             productRepository = _productRepository;
-            productCategoryRepository =_productCategoryRepository;
+            productCategoryRepository = _productCategoryRepository;
         }
         // GET: ProductManager
         public ActionResult Index()
@@ -36,7 +37,7 @@ namespace MyShop.WebUI.Controllers
             return View(viewModel);
         }
         [HttpPost]
-        public ActionResult Create(Product product)
+        public ActionResult Create(Product product, HttpPostedFileBase file)
         {
             if (!ModelState.IsValid)
             {
@@ -44,6 +45,11 @@ namespace MyShop.WebUI.Controllers
             }
             else
             {
+                if (file != null)
+                {
+                    product.Image = product.Id + Path.GetExtension(file.FileName);
+                    file.SaveAs(Server.MapPath("//Content//ProductImages//") + product.Image);
+                }
                 productRepository.Insert(product);
                 productRepository.Commit();
 
@@ -68,10 +74,10 @@ namespace MyShop.WebUI.Controllers
             }
         }
         [HttpPost]
-        public ActionResult Edit(Product product,string id)
+        public ActionResult Edit(Product product, string id, HttpPostedFileBase file)
         {
             Product productToEdit = productRepository.Find(id);
-            if (productToEdit==null)
+            if (productToEdit == null)
             {
                 return HttpNotFound();
             }
@@ -81,11 +87,15 @@ namespace MyShop.WebUI.Controllers
                 {
                     return View(product);
                 }
-                    productToEdit.Name = product.Name;
-                    productToEdit.Category = product.Category;
-                    productToEdit.Price = product.Price;
-                    productToEdit.Image = product.Image;
-                    productToEdit.Description = product.Description;
+                if (file != null)
+                {
+                    productToEdit.Image = product.Id + Path.GetExtension(file.FileName);
+                    file.SaveAs(Server.MapPath("//Content//ProductImages//") + productToEdit.Image);
+                }
+                productToEdit.Name = product.Name;
+                productToEdit.Category = product.Category;
+                productToEdit.Price = product.Price;
+                productToEdit.Description = product.Description;
 
                 productRepository.Commit();
                 return RedirectToAction("Index");
@@ -94,7 +104,7 @@ namespace MyShop.WebUI.Controllers
         public ActionResult Delete(string id)
         {
             Product product = productRepository.Find(id);
-            if (id==null)
+            if (id == null)
             {
                 return HttpNotFound();
             }
@@ -108,7 +118,7 @@ namespace MyShop.WebUI.Controllers
         public ActionResult ConfirmDelete(string id)
         {
             Product productToDelete = productRepository.Find(id);
-            if (productToDelete==null)
+            if (productToDelete == null)
             {
                 return HttpNotFound();
             }
@@ -119,6 +129,6 @@ namespace MyShop.WebUI.Controllers
                 return RedirectToAction("Index");
             }
         }
-       
+
     }
 }
