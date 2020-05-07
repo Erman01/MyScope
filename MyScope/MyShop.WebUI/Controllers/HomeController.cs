@@ -1,7 +1,9 @@
 ﻿using MyScope.Core.Models;
+using MyScope.Core.ViewModels;
 using MyShop.Core;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -12,20 +14,36 @@ namespace MyShop.WebUI.Controllers
     {
         IRepository<Product> productRepository;
         IRepository<ProductCategory> productCategoryRepository;
-        public HomeController(IRepository<Product> _productRepository,IRepository<ProductCategory> _productCategoryRepository)
+        public HomeController(IRepository<Product> _productRepository, IRepository<ProductCategory> _productCategoryRepository)
         {
             productRepository = _productRepository;
             productCategoryRepository = _productCategoryRepository;
         }
-        public ActionResult Index()
+        public ActionResult Index(string categoryList=null)
         {
-            List<Product> products = productRepository.Collection().ToList();
-            return View(products);
+            List<Product> products;
+            List<ProductCategory> productCategories = productCategoryRepository.Collection().ToList();
+
+            if (categoryList == null)
+            {
+                products = productRepository.Collection().ToList();
+            }
+            else
+            {
+                products = productRepository.Collection().Where(p => p.Category == categoryList).ToList();
+            }
+            ProductListViewModel model = new ProductListViewModel()
+            {
+                Products = products,
+                ProductCategories = productCategories
+            };
+
+            return View(model);
         }
         public ActionResult Details(string id)
         {
             Product product = productRepository.Find(id);
-            if (product==null)
+            if (product == null)
             {
                 return HttpNotFound();
             }
@@ -33,7 +51,6 @@ namespace MyShop.WebUI.Controllers
             {
                 return View(product);
             }
-           
         }
         public ActionResult About()
         {
@@ -48,5 +65,6 @@ namespace MyShop.WebUI.Controllers
 
             return View();
         }
+        
     }
 }
