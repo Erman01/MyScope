@@ -12,7 +12,7 @@
 
     @foreach (var cat in Model.ProductCategories)
     {
-        <ul style="list-style-type:none">"
+        <ul style="list-style-type:none">
             <li>@Html.ActionLink(cat.Name, "Index", new { categoryList = cat.Name },
             new { @class = Request["categoryList"] == cat.Name ? "list-group-item active" : "list-group-item" })</li>
         </ul>

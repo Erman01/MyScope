@@ -57,7 +57,7 @@ namespace MyShop.WebUI.Controllers
         public ActionResult Edit(ProductCategory productCategory,string id)
         {
             ProductCategory productCategoryToEdit = productCategoryRepository.Find(id);
-            if (productCategoryToEdit==null)
+            if (productCategoryToEdit == null)
             {
                 return HttpNotFound();
             }
@@ -68,11 +68,9 @@ namespace MyShop.WebUI.Controllers
                     return View(productCategory);
                 }
                 productCategoryToEdit.Name = productCategory.Name;
-
                 productCategoryRepository.Commit();
                 return RedirectToAction("Index");
             }
-
         }
         public ActionResult Delete(string id)
         {
