@@ -8,6 +8,8 @@ using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
+using MyScope.Core.Models;
+using MyShop.Core;
 using MyShop.WebUI.Models;
 
 namespace MyShop.WebUI.Controllers
@@ -17,15 +19,12 @@ namespace MyShop.WebUI.Controllers
     {
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
+        private IRepository<Customer> _customerRepository;
 
-        public AccountController()
-        {
-        }
-
-        public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager )
-        {
-            UserManager = userManager;
-            SignInManager = signInManager;
+        
+        public AccountController(IRepository<Customer> customerRepository)
+        { 
+            _customerRepository = customerRepository;
         }
 
         public ApplicationSignInManager SignInManager
@@ -151,8 +150,23 @@ namespace MyShop.WebUI.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+                var user = new ApplicationUser { UserName = model.Name, Email = model.Email };
                 var result = await UserManager.CreateAsync(user, model.Password);
+
+                Customer customer = new Customer()
+                {
+                    Name = model.Name,
+                    LastName = model.LastName,
+                    EMail = model.Email,
+                    Street = model.Street,
+                    City = model.City,
+                    State = model.State,
+                    ZipCode = model.ZipCode,
+                    UserId=user.Id
+                };
+                _customerRepository.Insert(customer);
+                _customerRepository.Commit();
+
                 if (result.Succeeded)
                 {
                     await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
