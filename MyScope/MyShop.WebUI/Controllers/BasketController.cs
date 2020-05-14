@@ -1,5 +1,6 @@
 ﻿using MyScope.Core.Contracts;
 using MyScope.Core.Models;
+using MyShop.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,10 +11,12 @@ namespace MyShop.WebUI.Controllers
 {
     public class BasketController : Controller
     {
+        IRepository<Customer> customerRespository;
         IBasketService basketService;
         IOrderService orderService;
-        public BasketController(IBasketService _basketService,IOrderService _orderService)
+        public BasketController(IBasketService _basketService,IOrderService _orderService, IRepository<Customer> _customerRespository)
         {
+            customerRespository = _customerRespository;
             basketService = _basketService;
             orderService = _orderService;
         }
@@ -37,15 +40,38 @@ namespace MyShop.WebUI.Controllers
             var basketSummary = basketService.GetBasketSummary(this.HttpContext);
             return PartialView(basketSummary);
         }
+        [Authorize]
         public ActionResult CheckOut()
         {
-            return View();
+            Customer customer = customerRespository.Collection().FirstOrDefault(c => c.EMail == User.Identity.Name);
+            if (customer!=null)
+            {
+                Order order = new Order()
+                {
+                    Name = customer.Name,
+                    LastName = customer.LastName,
+                    Street = customer.Street,
+                    City = customer.City,
+                    State = customer.State,
+                    EMail = customer.EMail,
+                    ZipCode = customer.ZipCode
+                };
+                return View(order);
+            }
+            else
+            {
+                return RedirectToAction("Error");
+            }
+
+            
         }
         [HttpPost]
+        [Authorize]
         public ActionResult CheckOut(Order order)
         {
             var basketItems = basketService.GetBasketItems(this.HttpContext);
             order.OrderStatus = "Order Created";
+            order.EMail = User.Identity.Name;
 
             //Process Payment
             order.OrderStatus = "Payment Processed";
