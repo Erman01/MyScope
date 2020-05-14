@@ -1,0 +1,53 @@
+﻿@model IEnumerable<MyScope.Core.Models.OrderItem>
+
+
+    <table class="table table-striped">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ProductName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Price)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Quantity)
+            </th>
+            <th>Line Total</th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ProductName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Price)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Quantity)
+                </td>
+                <td>
+                    @String.Format("{0:c}", item.Price * item.Quantity)
+                </td>
+            </tr>
+        }
+    <tr>
+        <td style="text-align:left">
+            <strong>Order Total</strong>
+        </td>
+        <td>
+
+        </td>
+        <td style="text-align:left">
+            <strong>@Model.Select(x => x.Quantity).Sum()</strong>
+        </td>
+        <td style="text-align:left">
+            <strong> @String.Format("{0:c}", (from o in Model select o.Price * o.Quantity).Sum())</strong>
+        </td>
+    </tr>
+
+    </table>
+
+
+
