@@ -23,7 +23,10 @@ namespace MyShop.WebUI.Controllers
         public ActionResult Index()
         {
             var model = basketService.GetBasketItems(this.HttpContext);
-            return View(model);
+           
+                return View(model);
+      
+           
         }
         public ActionResult AddToBasket(string id)
         {
@@ -70,22 +73,33 @@ namespace MyShop.WebUI.Controllers
         public ActionResult CheckOut(Order order)
         {
             var basketItems = basketService.GetBasketItems(this.HttpContext);
-            order.OrderStatus = "Order Created";
-            order.EMail = User.Identity.Name;
+            if (basketItems.Count>0)
+            {
+                order.OrderStatus = "Order Created";
+                order.EMail = User.Identity.Name;
+                //Process Payment
+                order.OrderStatus = "Payment Processed";
 
-            //Process Payment
-            order.OrderStatus = "Payment Processed";
-
-            orderService.CreateOrder(order, basketItems);
-            basketService.ClearBasket(this.HttpContext);
-
-            return RedirectToAction("ThankYou",new {OrderId=order.Id });
+                orderService.CreateOrder(order, basketItems);
+                basketService.ClearBasket(this.HttpContext);
+                return RedirectToAction("ThankYou", new { OrderId = order.Id });
+            }
+            else
+            {
+                return RedirectToAction("BasketError");
+            }
+          
 
         }
+
         public ActionResult ThankYou(string OrderId)
         {
             ViewBag.OrderId = OrderId;
 
+            return View();
+        }
+        public ActionResult BasketError()
+        {
             return View();
         }
     }
